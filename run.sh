@@ -67,7 +67,31 @@ function config() {
 
 function build() {
     info "Building..."
-    make MPI=0 MPI_HOME="${HOME}/mpi/build" CUDA_HOME="$HOME/cuda" NCCL_HOME="${HOME}/lccl/build"
+    NCCL_HOME=""
+    MPI_HOME=""
+    if [[ -d "/lccl" ]]; then
+        NCCL_HOME="/lccl"
+    fi
+    if [[ -d "/mpi" ]]; then
+        MPI_HOME="/mpi"
+    fi
+
+    if [ -z ${MPI_HOME} ]; then
+        if [ -z ${NCCL_HOME} ]; then
+            make MPI=0
+        else
+            make MPI=0 NCCL_HOME="${NCCL_HOME}"
+            export LD_LIBRARY_PATH="${NCCL_HOME}/lib:${LD_LIBRARY_PATH}"
+        fi
+    else
+        if [ -z ${NCCL_HOME} ]; then
+            make MPI=1 MPI_HOME="${MPI_HOME}"
+            export LD_LIBRARY_PATH="${MPI_HOME}/lib:${LD_LIBRARY_PATH}"
+        else
+            make MPI=1 MPI_HOME="${MPI_HOME}" NCCL_HOME="${NCCL_HOME}"
+            export LD_LIBRARY_PATH="${MPI_HOME}/lib:${NCCL_HOME}/lib:${LD_LIBRARY_PATH}"
+        fi
+    fi
 }
 
 function install_python_packages() {

@@ -1,0 +1,6 @@
+pyarrow
+pandas
+mysql-connector-python
+sqlalchemy
+matplotlib
+dash
